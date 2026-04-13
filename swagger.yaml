@@ -1,0 +1,63 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API de Cashback",
+    "description": "API responsável pelo cálculo de cashback e consulta de histórico de clientes.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/cashback/calcular": {
+      "post": {
+        "summary": "Calcular cashback",
+        "description": "Calcula o valor de cashback com base no tipo de cliente, valor da compra e cupom aplicado.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cashback calculado com sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "valor_final": 450,
+                  "cashback": 22.5
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/historico": {
+      "get": {
+        "summary": "Consultar histórico",
+        "description": "Retorna o histórico de cálculos realizados pelo IP do usuário.",
+        "responses": {
+          "200": {
+            "description": "Histórico retornado com sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "historico": [
+                    {
+                      "TipoCliente": "VIP",
+                      "ValorCompra": 500,
+                      "cashback": 50
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

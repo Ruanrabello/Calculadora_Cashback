@@ -1,35 +1,147 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>Cashback App -- Desafio Nology</title>
+    <meta charset="UTF-8">
+    <title>Cashback App - Desafio Nology</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 50px;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #22c55e;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #16a34a;
+        }
+
+        #resultado {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 18px;
+            color: #38bdf8;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #334155;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 8px;
+        }
+
+        .label {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Calculadora de Cashback</h2>
+<div class="container">
 
-<select id="tipo">
-    <option value="normal">Normal</option>
-    <option value="vip">VIP</option>
-</select>
+    <h2>Calculadora de Cashback - Nology</h2>
 
-<input type="number" id="valor" placeholder="Valor da compra">
-<input type="number" id="cupom" placeholder="Cupom (%)">
+    <div class="label">Tipo de cliente</div>
+    <select id="tipo">
+        <option value="normal">Normal</option>
+        <option value="vip">VIP</option>
+    </select>
 
-<button onclick="calcular()">Calcular</button>
+    <div class="label">Valor da compra</div>
+    <input type="number" id="valor" placeholder="Ex: 100">
 
-<h3 id="resultado"></h3>
+    <div class="label">Cupom (%)</div>
+    <input type="number" id="cupom" placeholder="Ex: 10">
 
-<h2>Histórico</h2>
-<ul id="historico"></ul>
+    <button id="btn" onclick="calcular()">Calcular cashback</button>
+
+    <h3 id="resultado"></h3>
+
+    <h2>Histórico</h2>
+    <ul id="historico"></ul>
+
+</div>
 
 <script>
+let carregando = false;
 async function calcular() {
+    if (carregando) return;
+
+    const botao = document.getElementById("btn");
+    carregando = true;
+    botao.disabled = true;
+    botao.innerText = "Calculando...";
+
     const tipo = document.getElementById("tipo").value;
     const valor = parseFloat(document.getElementById("valor").value);
     const cupom = parseFloat(document.getElementById("cupom").value);
+    
 
-    const response = await fetch("http://127.0.0.1:8000/calcular_cashback/", {
+    if (isNaN(valor) || valor <= 0) {
+        alert("Digite um valor de compra válido");
+        carregando = false;
+        botao.disabled = false;
+        botao.innerText = "Calcular cashback";
+
+        return;
+    }
+
+    if (isNaN(cupom) || cupom < 0) {
+        alert("Digite um cupom válido");
+        carregando = false;
+        botao.disabled = false;
+        botao.innerText = "Calcular cashback";
+        return;
+    }
+
+    const precoFinal = valor - (valor * cupom / 100);
+    const response = await fetch("https://calculadora-cashback-csom.onrender.com/calcular_cashback/", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -42,28 +154,33 @@ async function calcular() {
     const data = await response.json();
 
     document.getElementById("resultado").innerText =
-        "Cashback: R$ " + data.cashback.toFixed(2);
+        `Valor final: R$ ${precoFinal.toFixed(2)} | Cashback: R$ ${data.cashback.toFixed(2)}`;
+
+    carregando = false;
+    botao.disabled = false;
+    botao.innerText = "Calcular";
 
     carregarHistorico();
 }
 
 async function carregarHistorico() {
-    const response = await fetch("http://127.0.0.1:8000/Historico_ip");
+    const response = await fetch("https://calculadora-cashback-csom.onrender.com/Historico_ip");
     const data = await response.json();
 
     const lista = document.getElementById("historico");
     lista.innerHTML = "";
 
     data.historico.forEach(item => {
-    const li = document.createElement("li");
-    
-    // Pegando os valores de dentro do "item" que vem do loop
-    const valorCompra = item.ValorCompra || 0;
-    const valorCashback = item.valorCashback || 0;
+        const li = document.createElement("li");
 
-    li.innerText = `${item.Tipo_Cliente} - R$ ${valorCompra.toFixed(2)} → Cashback: R$ ${valorCashback.toFixed(2)}`;
-    lista.appendChild(li);
-});
+        const valorCompra = item.ValorCompra || 0;
+        const valorCashback = item.valorCashback || 0;
+
+        li.innerText =
+            `${item.Tipo_Cliente} - R$ ${valorCompra.toFixed(2)} → Cashback: R$ ${valorCashback.toFixed(2)}`;
+
+        lista.appendChild(li);
+    });
 }
 </script>
 

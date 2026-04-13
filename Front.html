@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cashback App -- Desafio Nology</title>
+</head>
+<body>
+
+<h2>Calculadora de Cashback</h2>
+
+<select id="tipo">
+    <option value="normal">Normal</option>
+    <option value="vip">VIP</option>
+</select>
+
+<input type="number" id="valor" placeholder="Valor da compra">
+<input type="number" id="cupom" placeholder="Cupom (%)">
+
+<button onclick="calcular()">Calcular</button>
+
+<h3 id="resultado"></h3>
+
+<h2>Histórico</h2>
+<ul id="historico"></ul>
+
+<script>
+async function calcular() {
+    const tipo = document.getElementById("tipo").value;
+    const valor = parseFloat(document.getElementById("valor").value);
+    const cupom = parseFloat(document.getElementById("cupom").value);
+
+    const response = await fetch("http://127.0.0.1:8000/calcular_cashback/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            TipoCliente: tipo,
+            ValorCompra: valor,
+            cupom: cupom
+        })
+    });
+
+    const data = await response.json();
+
+    document.getElementById("resultado").innerText =
+        "Cashback: R$ " + data.cashback.toFixed(2);
+
+    carregarHistorico();
+}
+
+async function carregarHistorico() {
+    const response = await fetch("http://127.0.0.1:8000/Historico_ip");
+    const data = await response.json();
+
+    const lista = document.getElementById("historico");
+    lista.innerHTML = "";
+
+    data.historico.forEach(item => {
+    const li = document.createElement("li");
+    
+    // Pegando os valores de dentro do "item" que vem do loop
+    const valorCompra = item.ValorCompra || 0;
+    const valorCashback = item.valorCashback || 0;
+
+    li.innerText = `${item.Tipo_Cliente} - R$ ${valorCompra.toFixed(2)} → Cashback: R$ ${valorCashback.toFixed(2)}`;
+    lista.appendChild(li);
+});
+}
+</script>
+
+</body>
+</html>

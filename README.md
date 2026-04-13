@@ -157,11 +157,8 @@ Projeto desenvolvido como desafio técnico com foco em demonstrar:
 
 ## 🌍 Acesso ao Projeto (após deploy)
 
-Frontend:
-https://seu-frontend.vercel.app
-
-Backend:
-https://seu-backend.onrender.com/docs
+SiteOficial: https://calculadora-cashback-w34p.vercel.app
+Documentação API:  https://calculadora-cashback-csom.onrender.com/docs
 
 ---
 

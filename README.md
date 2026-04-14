@@ -104,7 +104,7 @@ uvicorn main:app --reload
 * Documentação automática (Swagger):
 
 ```
-http://127.0.0.1:8000/docs
+http://127.0.0.1:8000/docs](https://calculadora-cashback-csom.onrender.com/docs
 ```
 
 ---
